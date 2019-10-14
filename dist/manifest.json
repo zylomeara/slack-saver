@@ -9,8 +9,13 @@
     "default_icon": "icon.png"
   },
 
+  "permissions": [
+    "webRequest",
+    "<all_urls>"
+  ],
+
   "content_scripts": [{
-    "js": ["./dist/bundle.js"],
+    "js": ["./bundle.js"],
     "matches": ["https://app.slack.com/*"]
   }]
 }
