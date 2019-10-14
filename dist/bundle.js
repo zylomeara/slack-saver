@@ -93,10 +93,13 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-function logURL(requestDetails) {
-    console.log("Loading: " + requestDetails.url);
-}
-browser.webRequest.onBeforeRequest.addListener(logURL, { urls: ["<all_urls>"] });
+console.error('yeahhh');
+var s = document.createElement('script');
+s.src = chrome.runtime.getURL('script.js');
+s.onload = function () {
+    this.remove();
+};
+(document.head || document.documentElement).appendChild(s);
 
 
 /***/ })

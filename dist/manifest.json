@@ -1,21 +1,20 @@
 {
   "manifest_version": 2,
 
-  "name": "GTmetrix Analyzer Plugin",
-  "description": "This extension will analyze a page using GTmetrix",
+  "name": "Slack Saver",
+  "description": "Slack Saver",
   "version": "1.0",
 
   "browser_action": {
     "default_icon": "icon.png"
   },
 
-  "permissions": [
-    "webRequest",
-    "<all_urls>"
-  ],
+  "web_accessible_resources": ["script.js"],
+
+  "permissions": ["activeTab"],
 
   "content_scripts": [{
-    "js": ["./bundle.js"],
+    "js": ["bundle.js"],
     "matches": ["https://app.slack.com/*"]
   }]
 }

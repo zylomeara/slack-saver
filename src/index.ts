@@ -22,12 +22,13 @@ type Conversation = {
   pin_count: number,
 }
 
+console.error('yeahhh');
 
-function logURL(requestDetails) {
-  console.log("Loading: " + requestDetails.url);
-}
 
-browser.webRequest.onBeforeRequest.addListener(
-  logURL,
-  {urls: ["<all_urls>"]}
-);
+
+var s = document.createElement('script');
+s.src = chrome.runtime.getURL('script.js');
+s.onload = function() {
+  this.remove();
+};
+(document.head || document.documentElement).appendChild(s);
