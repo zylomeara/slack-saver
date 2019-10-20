@@ -70,18 +70,30 @@ const getSlackData = () => new Promise((resolve, reject) => {
     };
 });
 
-const backup = async () => {
-    const {channels, members, messages} = await getSlackData();
+const getBackupData = () => {
     let oldBackup;
     try {
         oldBackup = JSON.parse(localStorage.getItem("backup") || "{}") || {};
     } catch (e) {
         oldBackup = {};
     }
+    return oldBackup;
+}
+
+const backup = async () => {
+    const {channels, members, messages} = await getSlackData();
+    const oldBackup = getBackupData();
     const newBackup = mergeDeep(oldBackup, {channels, members, messages});
 
     localStorage.setItem("backup", JSON.stringify(newBackup))
     console.log(newBackup);
+}
+
+const getMessages = (real_name) => {
+    let backupData = getBackupData();
+    let memberId = Object.values(backupData.members).find(item => (item.real_name || '').includes(real_name)).id;
+    let channelId = Object.values(backupData.channels).find(item => (item.user || '').includes(memberId)).id;
+    return backupData.messages[channelId]
 }
 
 setTimeout(backup, 60 * 1000)
