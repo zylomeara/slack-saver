@@ -89,11 +89,50 @@ const backup = async () => {
     console.log(newBackup);
 }
 
-const getMessages = (real_name) => {
+const getMessages = (real_name, options = {}) => {
+    real_name = real_name.toLowerCase();
     let backupData = getBackupData();
-    let memberId = Object.values(backupData.members).find(item => (item.real_name || '').includes(real_name)).id;
+    let memberId = Object.values(backupData.members).find(item => (item.real_name || '').toLowerCase().includes(real_name)).id;
     let channelId = Object.values(backupData.channels).find(item => (item.user || '').includes(memberId)).id;
+
+    if (options.compact) {
+        if (!backupData.messages[channelId]) {
+            return undefined
+        }
+
+        return Object.entries(backupData.messages[channelId]).reduce((acc, [ts, obj]) => {
+            const {text, user} = obj;
+            return {
+                ...acc,
+                [ts]: {text, user}
+            }
+        }, null)
+    }
+
     return backupData.messages[channelId]
+}
+
+const getAllMessages = () => {
+    const {messages, channels, members} = getBackupData();
+
+    const onlyUserChannelsList = Object.values(channels).filter(item => item.user);
+    const membersList = Object.values(members);
+    const messagesList = Object.values(messages);
+
+    return onlyUserChannelsList.map(channel => {
+        const name = ((membersList.find(member => member.id === channel.user)) || {}).real_name
+        const messages = getMessages(name || '', {compact: true});
+
+        return {
+            name,
+            messages
+        }
+    }).filter(item => item.messages).reduce((acc, {name, messages}) => {
+        return {
+            ...acc,
+            [name]: messages
+        }
+    }, null)
 }
 
 setTimeout(backup, 60 * 1000)
