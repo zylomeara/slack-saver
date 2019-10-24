@@ -11,6 +11,7 @@ function default_1(app, dbClient) {
                 res.send(result.ops[0]);
             }
         });
+        dbClient.close();
     });
 }
 exports["default"] = default_1;

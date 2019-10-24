@@ -8,6 +8,10 @@ import { MongoClient } from "mongodb";
 
 const app = express();
 const port = 3000;
+const client = new MongoClient(db.url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 app.use(cors());
 
@@ -24,9 +28,9 @@ app.post('/', (request, response) => {
     response.send('Hello from Express!!!');
 });
 
-MongoClient.connect(db.url, (err, dbClient) => {
+client.connect((err) => {
   if (err) return console.log(err);
-  routes(app, dbClient);
+  routes(app, client);
 // https.createServer({
 //     key: fs.readFileSync('server.key'),
 //     cert: fs.readFileSync('server.cert')

@@ -7,6 +7,10 @@ var db_1 = require("./config/db");
 var mongodb_1 = require("mongodb");
 var app = express();
 var port = 3000;
+var client = new mongodb_1.MongoClient(db_1["default"].url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
 app.use(cors());
 app.use(express.urlencoded());
 app.use(express.json());
@@ -17,10 +21,10 @@ app.post('/', function (request, response) {
     console.log(request.body);
     response.send('Hello from Express!!!');
 });
-mongodb_1.MongoClient.connect(db_1["default"].url, function (err, dbClient) {
+client.connect(function (err) {
     if (err)
         return console.log(err);
-    routes_1["default"](app, dbClient);
+    routes_1["default"](app, client);
     // https.createServer({
     //     key: fs.readFileSync('server.key'),
     //     cert: fs.readFileSync('server.cert')

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack -w --progress",
-    "tsc": "tsc ./server.ts",
+    "tsc": "tsc ./server.ts --watch",
     "srv": "nodemon server.js"
   },
   "author": "",
