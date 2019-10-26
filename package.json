@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack -w --progress",
-    "tsc": "tsc ./server.ts --watch",
-    "srv": "nodemon server.js"
+    "srv": "nodemon ./dist/bundle.js"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +24,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongodb": "^3.3.3",
-    "nodemon": "^1.19.4"
+    "nodemon": "^1.19.4",
+    "webpack-node-externals": "^1.7.2"
   }
 }
