@@ -134,10 +134,19 @@ const getAllMessages = () => {
     }, null)
 }
 
-setTimeout(backup, 60 * 1000)
+setTimeout(backup, 60 * 1000);
 
-window.fetchOriginal = window.fetch;
+window.con = window.console;
+window.console = {
+    ...window.con,
+    // log: () => {},
+    // error: () => {},
+    // debug: () => {},
+    info: () => {},
+    // warn: () => {},
+};
 
+// window.fetchOriginal = window.fetch;
 // (function() {
 //     var XHR = XMLHttpRequest.prototype;
 //     // Remember references to original methods
