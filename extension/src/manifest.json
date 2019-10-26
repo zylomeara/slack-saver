@@ -14,7 +14,7 @@
   "permissions": ["activeTab"],
 
   "content_scripts": [{
-    "js": ["bundle.js"],
+    "js": ["index.js"],
     "matches": ["https://app.slack.com/*"]
   }]
 }
