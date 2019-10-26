@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as cors from 'cors';
-import routes from './app/routes/';
+import routes from './app/routes';
 import db from './config/db';
 import { MongoClient } from "mongodb";
 
@@ -36,6 +36,6 @@ client.connect((err) => {
 //     cert: fs.readFileSync('server.cert')
 // }, app).listen(port, () => {
   app.listen(port, () => {
-    console.log(`server is listening on ${port}`)
+    console.log(`server is listening on http://localhost:${port}/`)
   });
 });

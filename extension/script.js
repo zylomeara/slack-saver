@@ -117,7 +117,6 @@ const getAllMessages = () => {
 
     const onlyUserChannelsList = Object.values(channels).filter(item => item.user);
     const membersList = Object.values(members);
-    const messagesList = Object.values(messages);
 
     return onlyUserChannelsList.map(channel => {
         const name = ((membersList.find(member => member.id === channel.user)) || {}).real_name
