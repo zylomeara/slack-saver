@@ -134,17 +134,56 @@ const getAllMessages = () => {
     }, null)
 }
 
+const getMessagesFromChannel = (channelName) => {
+    const {messages, channels, members} = getBackupData();
+    const foundChannel = Object.values(channels)
+        .filter(ch => ch.is_channel || ch.is_group || ch.is_general)
+        .find(ch => ch.name.includes(channelName)) || {};
+    const foundMessages = (
+        Object.entries(messages)
+            .find(([idCh, msgs]) => foundChannel.id === idCh) || []
+    )[1] || {};
+    return Object.entries(foundMessages)
+        .reduce((acc, [ts, {text, user}]) => ({
+            ...acc,
+            [ts]: {
+                text,
+                user
+            }
+        }), {});
+}
+
+// const syncDatabase = () => {
+//     const {messages, channels, members} = getBackupData();
+//     const transformedData = {
+//         channels: Object.values(channels),
+//         members: Object.values(members),
+//         messages: Object.entries(messages)
+//             .map(([channelId, msgs]) => ({
+//
+//             }))
+//     }
+// }
+
 setTimeout(backup, 60 * 1000);
 
 window.con = window.console;
-window.console = {
-    ...window.con,
-    // log: () => {},
-    // error: () => {},
-    // debug: () => {},
-    info: () => {},
-    // warn: () => {},
-};
+
+window.console = Object.entries(con)
+    .map(([methodName, methodFun]) => typeof methodFun === 'function' ? [methodName, () => {}] : [methodName, methodFun])
+    .reduce((acc, [methodName, methodFun]) => ({
+        ...acc,
+        [methodName]: methodFun,
+    }), {});
+
+// window.console = {
+//     ...window.con,
+//     log: () => {},
+//     error: () => {},
+//     debug: () => {},
+//     info: () => {},
+//     warn: () => {},
+// };
 
 // window.fetchOriginal = window.fetch;
 // (function() {

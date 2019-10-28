@@ -20,12 +20,17 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 
 app.get('/', (request, response) => {
-  response.send('Hello from Express!')
+  response.send(`
+<form action="/" method="post">
+    <input name="message" value="Сообщение">
+    <button type="submit">
+</form>
+`)
 });
 
 app.post('/', (request, response) => {
     console.log(request.body);
-    response.send('Hello from Express!!!');
+    response.send('<b>Hello from Express!!!</b>');
 });
 
 client.connect((err) => {
