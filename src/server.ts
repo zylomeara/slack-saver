@@ -5,6 +5,7 @@ import * as cors from 'cors';
 import routes from './app/routes';
 import db from './config/db';
 import { MongoClient } from "mongodb";
+import * as bodyParser from 'body-parser';
 
 const app = express();
 const port = 3000;
@@ -15,9 +16,9 @@ const client = new MongoClient(db.url, {
 
 app.use(cors());
 
-app.use(express.urlencoded({extended: true}));
+app.use(bodyParser.json({limit: "50mb"}));
 
-app.use(express.json());
+app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 
 app.get('/', (request, response) => {
   response.send(`
