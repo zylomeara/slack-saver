@@ -20,6 +20,11 @@ app.use(bodyParser.json({limit: "50mb"}));
 
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 
+app.use((req, res, next) => {
+  console.info(`${req.method} ${req.originalUrl}`);
+  next()
+});
+
 app.get('/', (request, response) => {
   response.send(`
 <form action="/" method="post">
@@ -44,4 +49,9 @@ client.connect((err) => {
   app.listen(port, () => {
     console.log(`server is listening on http://localhost:${port}/`)
   });
+});
+
+process.on('SIGINT', () => {
+  client.close();
+  process.exit();
 });

@@ -50,7 +50,5 @@ export default function (app: Express, dbClient: MongoClient) {
         res.send(result.ops[0]);
       }
     });
-
-    dbClient.close();
   });
 }

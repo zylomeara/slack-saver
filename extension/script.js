@@ -19,7 +19,7 @@ const mergeDeep = (...objects) => {
 
         return prev;
     }, {});
-}
+};
 
 
 const getSlackData = () => new Promise((resolve, reject) => {
@@ -78,7 +78,7 @@ const getBackupData = () => {
         oldBackup = {};
     }
     return oldBackup;
-}
+};
 
 const backup = async () => {
     const {channels, members, messages} = await getSlackData();
@@ -87,7 +87,7 @@ const backup = async () => {
 
     localStorage.setItem("backup", JSON.stringify(newBackup))
     console.log(newBackup);
-}
+};
 
 const getMessages = (real_name, options = {}) => {
     real_name = real_name.toLowerCase();
@@ -110,16 +110,16 @@ const getMessages = (real_name, options = {}) => {
     }
 
     return backupData.messages[channelId]
-}
+};
 
 const getAllMessages = () => {
-    const {messages, channels, members} = getBackupData();
+    const {channels, members} = getBackupData();
 
     const onlyUserChannelsList = Object.values(channels).filter(item => item.user);
     const membersList = Object.values(members);
 
     return onlyUserChannelsList.map(channel => {
-        const name = ((membersList.find(member => member.id === channel.user)) || {}).real_name
+        const name = ((membersList.find(member => member.id === channel.user)) || {}).real_name;
         const messages = getMessages(name || '', {compact: true});
 
         return {
@@ -132,7 +132,7 @@ const getAllMessages = () => {
             [name]: messages
         }
     }, null)
-}
+};
 
 const getMessagesFromChannel = (channelName) => {
     const {messages, channels, members} = getBackupData();
@@ -151,19 +151,22 @@ const getMessagesFromChannel = (channelName) => {
                 user
             }
         }), {});
-}
+};
 
-// const syncDatabase = () => {
-//     const {messages, channels, members} = getBackupData();
-//     const transformedData = {
-//         channels: Object.values(channels),
-//         members: Object.values(members),
-//         messages: Object.entries(messages)
-//             .map(([channelId, msgs]) => ({
-//
-//             }))
-//     }
-// }
+const syncDatabase = () =>
+    fetch('http://localhost:3000/backup/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(getBackupData())
+    })
+        .then(res => res.json());
+
+const getDatabaseData = () =>
+    fetch('http://localhost:3000/backup/')
+        .then(res => res.json());
+
 
 setTimeout(backup, 60 * 1000);
 
