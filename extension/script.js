@@ -163,9 +163,23 @@ const syncDatabase = () =>
     })
         .then(res => res.json());
 
-const getDatabaseData = () =>
-    fetch('http://localhost:3000/backup/')
-        .then(res => res.json());
+const getDatabaseData = async () => {
+    try {
+        return await fetch('http://localhost:3000/backup/')
+            .then(res => res.json());
+    } catch (e) {
+        return {};
+    }
+};
+
+const mergeFromDatabase = async () => {
+    const dbData = await getDatabaseData();
+    const lcData = getBackupData();
+
+    const mergedData = mergeDeep(dbData, lcData);
+
+    localStorage.setItem('backup2', JSON.stringify(mergedData));
+};
 
 
 setTimeout(backup, 60 * 1000);
