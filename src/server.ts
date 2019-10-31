@@ -21,7 +21,17 @@ app.use(bodyParser.json({limit: "50mb"}));
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 
 app.use((req, res, next) => {
-  console.info(`${req.method} ${req.originalUrl}`);
+  const date = new Date().toLocaleString('ru');
+  process.stdout.write(`\n[${date}]: ${req.method} ${req.originalUrl} ...`);
+
+  res.on('finish', () => {
+    // process.stdout.clearLine(0);
+    // process.stdout.cursorTo(0);
+    process.stdout.write(`[${date}]: ${req.method} ${req.originalUrl} ${res.statusCode}`);
+    // console.info(`[${date}]: ${req.method} ${req.originalUrl} ${res.statusCode}`);
+
+
+  });
   next()
 });
 

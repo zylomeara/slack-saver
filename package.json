@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack -w --progress",
-    "srv": "nodemon ./dist/bundle.js"
+    "srv": "nodemon ./dist/bundle.js",
+    "tsc": "tsc -w"
   },
   "author": "",
   "license": "ISC",
