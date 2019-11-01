@@ -181,6 +181,21 @@ const mergeFromDatabase = async () => {
     localStorage.setItem('backup2', JSON.stringify(mergedData));
 };
 
+const getTransformedBackupData = async () => {
+    const {channels, members, messages} = await getSlackData();
+
+    const data = {
+        channels: Object.values(channels),
+        members: Object.values(members),
+        messages: Object.values(messages)
+            .map(obj => Object.values(obj))
+            .reduce((acc, next) => [
+                ...acc,
+                ...next
+            ], [])
+    }
+};
+
 
 setTimeout(backup, 60 * 1000);
 
