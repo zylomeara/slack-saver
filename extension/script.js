@@ -181,19 +181,33 @@ const mergeFromDatabase = async () => {
     localStorage.setItem('backup2', JSON.stringify(mergedData));
 };
 
-const getTransformedBackupData = async () => {
+const getTransformedSlackData = async () => {
     const {channels, members, messages} = await getSlackData();
 
     const data = {
         channels: Object.values(channels),
         members: Object.values(members),
         messages: Object.values(messages)
-            .map(obj => Object.values(obj))
+            .map(obj =>
+                Object.values(obj)
+                    .map(msg => {
+                        const ts = Number((msg.ts || '').replace(/\./, ''));
+                        if (Number.isNaN(ts)) {
+                            throw new Error('Catch isNaN')
+                        }
+                        return ({
+                            ...msg,
+                            _id: ts
+                        });
+                    })
+            )
             .reduce((acc, next) => [
                 ...acc,
                 ...next
             ], [])
     }
+
+    return data;
 };
 
 
