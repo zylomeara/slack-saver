@@ -4,18 +4,28 @@ import { isSlackData } from "./db_validators";
 import { mergeDeep} from "../utils";
 
 const dbName = 'slack_data';
-const name = 'slack_data';
 
 export default function (app: Express, dbClient: MongoClient) {
   app.get('/backup', (req, res) => {
-    const details = { '_id': 0 };
-    dbClient.db(dbName).collection(name).findOne(details, (err, item) => {
-      if (err) {
-        res.send({'error':'An error has occurred'});
-      } else {
-        res.send(item);
-      }
-    });
+    const clientWithPromise = (collectionName: string) =>
+      new Promise((res, rej) =>
+        dbClient.db(dbName)
+          .collection(collectionName)
+          .find({})
+          .toArray((err, result) => err ? rej(err) : res(result)));
+
+    const promises = ['channels', 'members', 'messages']
+      .map(clientWithPromise);
+
+    Promise.all(promises).then(
+      ([channels, members, messages]) =>
+        res.send({
+          channels,
+          members,
+          messages
+        }),
+      reason => res.send({error: 'failed'})
+    )
   });
 
   app.post('/backup', (req, res) => {
