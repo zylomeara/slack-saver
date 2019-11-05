@@ -153,15 +153,18 @@ const getMessagesFromChannel = (channelName) => {
         }), {});
 };
 
-const syncDatabase = () =>
+const syncDatabase = async () => {
+    var data = await getTransformedSlackData();
+
     fetch('http://localhost:3000/backup/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(getBackupData())
+        body: JSON.stringify(data)
     })
         .then(res => res.json());
+};
 
 const getDatabaseData = async () => {
     try {
@@ -185,15 +188,23 @@ const getTransformedSlackData = async () => {
     const {channels, members, messages} = await getSlackData();
 
     const data = {
-        channels: Object.values(channels),
-        members: Object.values(members),
+        channels: Object.values(channels)
+            .map(chnl => ({
+                ...chnl,
+                _id: chnl.id
+            })),
+        members: Object.values(members)
+            .map(member => ({
+                ...member,
+                _id: member.id
+            })),
         messages: Object.values(messages)
             .map(obj =>
                 Object.values(obj)
                     .map(msg => {
                         const ts = Number((msg.ts || '').replace(/\./, ''));
                         if (Number.isNaN(ts)) {
-                            throw new Error('Catch isNaN')
+                            throw new Error('Catch NaN')
                         }
                         return ({
                             ...msg,

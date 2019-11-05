@@ -20,25 +20,31 @@ export default function (app: Express, dbClient: MongoClient) {
 
   app.post('/backup', (req, res) => {
     let backupData = req.body;
-    const details = { '_id': 0 };
 
-    dbClient.db(dbName).collection(name).findOne(details, (err, item) => {
-      if (err) {
-        res.send({ 'error': 'An error has occurred' });
-      } else if (isSlackData(backupData)) {
-        backupData = mergeDeep(item, backupData);
+    const batchUpdates = (collectionName: string) =>
+      new Promise(
+        (res, rej) => {
+          const batch = dbClient.db(dbName)
+            .collection(collectionName)
+            .initializeUnorderedBulkOp();
+          const items = backupData[collectionName] || [];
 
-        dbClient.db(dbName).collection(name).replaceOne(details, backupData, (err, result) => {
-          if (err) {
-            res.send({ 'error': 'An error has occurred' });
-          } else {
-            // res.send(result.ops[0]);
-            res.send({ 'success': 'Data saved' })
-          }
-        });
-      } else {
-        res.send({ 'success': 'Invalid data' })
-      }
-    });
+          // @ts-ignore
+          items.forEach(item => {
+            batch.find({ _id: item._id }).upsert().updateOne({ $set: item })
+          });
+
+          batch.execute((err, result) => err ? rej(0) : res(1));
+        }
+      );
+
+    const promises = ['channels', 'members', 'messages']
+      .map(batchUpdates);
+
+    Promise.all(promises).then(value => {
+      res.send(value);
+    }, reason => {
+      res.send({'error': 'failed'})
+    })
   });
 }
