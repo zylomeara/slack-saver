@@ -70,6 +70,103 @@ var getSlackData = () => new Promise((resolve, reject) => {
     };
 });
 
+var getLocalDB = () => new Promise((resolve, reject) => {
+    let storeName = "reduxPersistence";
+    let objectName = "reduxPersistenceStore";
+    let openRequest = indexedDB.open(storeName);
+
+// openRequest.onupgradeneeded = function() {
+//     // срабатывает, если на клиенте нет базы данных
+//     // ...выполнить инициализацию...
+// };
+
+    openRequest.onerror = function() {
+        // console.error("Error", openRequest.error);
+        reject({});
+        // reject(openRequest.error);
+    };
+
+    openRequest.onsuccess = function() {
+        let db = openRequest.result;
+        // продолжить работу с базой данных, используя объект db
+
+        function getAllItems(callback) {
+            var trans = db.transaction(objectName, "readwrite");
+            var store = trans.objectStore(objectName);
+            var items = [];
+
+            trans.oncomplete = function(evt) {
+                callback(items);
+            };
+
+            var cursorRequest = store.openCursor();
+
+            cursorRequest.onerror = function(error) {
+                console.log(error);
+            };
+
+            cursorRequest.onsuccess = function(evt) {
+                var cursor = evt.target.result;
+                if (cursor) {
+                    items.push({
+                        value: cursor.value,
+                        key: cursor.key,
+                    });
+                    cursor.continue();
+                }
+            };
+        }
+
+        getAllItems(items => resolve(items[0]));
+    };
+});
+
+var setToLocalDB = () => new Promise((resolve, reject) => {
+    let storeName = "reduxPersistence";
+    let objectName = "reduxPersistenceStore";
+    let openRequest = indexedDB.open(storeName);
+
+// openRequest.onupgradeneeded = function() {
+//     // срабатывает, если на клиенте нет базы данных
+//     // ...выполнить инициализацию...
+// };
+
+    openRequest.onerror = function() {
+        // console.error("Error", openRequest.error);
+        reject({});
+        // reject(openRequest.error);
+    };
+
+    openRequest.onsuccess = async function() {
+        let db = openRequest.result;
+        // продолжить работу с базой данных, используя объект db
+
+        var dbdata = await getDatabaseData();
+        var localDbData = await getLocalDB();
+        var newValue = mergeDeep(dbdata, localDbData.value);
+        // var newValue = mergeDeep(localDbData.value, dbdata);
+
+        async function getAllItems(callback) {
+            var trans = db.transaction(objectName, "readwrite");
+            var store = trans.objectStore(objectName);
+
+
+            var request = store.put(newValue, localDbData.key);
+
+            request.onsuccess = e => {
+                callback(e);
+            };
+
+            request.onerror = e => {
+                console.log('Error put: ' + e);
+            }
+        }
+
+        getAllItems(event => resolve(event));
+    };
+});
+
+
 var getBackupData = () => {
     let oldBackup;
     try {
