@@ -1,4 +1,4 @@
-const mergeDeep = (...objects) => {
+var mergeDeep = (...objects) => {
     const isObject = obj => obj && typeof obj === 'object';
 
     return objects.reduce((prev, obj) => {
@@ -22,7 +22,7 @@ const mergeDeep = (...objects) => {
 };
 
 
-const getSlackData = () => new Promise((resolve, reject) => {
+var getSlackData = () => new Promise((resolve, reject) => {
     let storeName = "reduxPersistence";
     let objectName = "reduxPersistenceStore";
     let openRequest = indexedDB.open(storeName);
@@ -70,7 +70,7 @@ const getSlackData = () => new Promise((resolve, reject) => {
     };
 });
 
-const getBackupData = () => {
+var getBackupData = () => {
     let oldBackup;
     try {
         oldBackup = JSON.parse(localStorage.getItem("backup") || "{}") || {};
@@ -80,7 +80,7 @@ const getBackupData = () => {
     return oldBackup;
 };
 
-const backup = async () => {
+var backup = async () => {
     const {channels, members, messages} = await getSlackData();
     const oldBackup = getBackupData();
     const newBackup = mergeDeep(oldBackup, {channels, members, messages});
@@ -89,7 +89,7 @@ const backup = async () => {
     console.log(newBackup);
 };
 
-const getMessages = (real_name, options = {}) => {
+var getMessages = (real_name, options = {}) => {
     real_name = real_name.toLowerCase();
     let backupData = getBackupData();
     let memberId = Object.values(backupData.members).find(item => (item.real_name || '').toLowerCase().includes(real_name)).id;
@@ -112,7 +112,7 @@ const getMessages = (real_name, options = {}) => {
     return backupData.messages[channelId]
 };
 
-const getAllMessages = () => {
+var getAllMessages = () => {
     const {channels, members} = getBackupData();
 
     const onlyUserChannelsList = Object.values(channels).filter(item => item.user);
@@ -134,7 +134,7 @@ const getAllMessages = () => {
     }, null)
 };
 
-const getMessagesFromChannel = (channelName) => {
+var getMessagesFromChannel = (channelName) => {
     const {messages, channels, members} = getBackupData();
     const foundChannel = Object.values(channels)
         .filter(ch => ch.is_channel || ch.is_group || ch.is_general)
@@ -153,7 +153,7 @@ const getMessagesFromChannel = (channelName) => {
         }), {});
 };
 
-const syncDatabase = async () => {
+var syncDatabase = async () => {
     var data = await getTransformedSlackData();
 
     fetch('http://localhost:3000/backup/', {
@@ -166,16 +166,39 @@ const syncDatabase = async () => {
         .then(res => res.json());
 };
 
-const getDatabaseData = async () => {
+var getDatabaseData = async () => {
     try {
-        return await fetch('http://localhost:3000/backup/')
-            .then(res => res.json());
+        const {messages, channels, members} = await fetch('http://localhost:3000/backup/')
+            .then(res => res.json())
+            .then(res => {
+                if (res.messages && res.channels && res.members) {
+                    return res;
+                }
+                throw Error('Invalid data')
+            });
+
+        const respToInternalData = {
+            channels: channels.reduce((acc, next) => ({
+                ...acc,
+                [next.id]: next,
+            }), {}),
+            members: members.reduce((acc, next) => ({
+                ...acc,
+                [next.id]: next,
+            }), {}),
+            messages: messages.reduce((acc, next) => ({
+                ...acc,
+                [next.channel]: {...(acc[next.channel] || {}), [next.ts]: next},
+            }), {})
+        };
+
+        return respToInternalData;
     } catch (e) {
         return {};
     }
 };
 
-const mergeFromDatabase = async () => {
+var mergeFromDatabase = async () => {
     const dbData = await getDatabaseData();
     const lcData = getBackupData();
 
@@ -184,7 +207,7 @@ const mergeFromDatabase = async () => {
     localStorage.setItem('backup2', JSON.stringify(mergedData));
 };
 
-const getTransformedSlackData = async () => {
+var getTransformedSlackData = async () => {
     const {channels, members, messages} = await getSlackData();
 
     const data = {
@@ -222,7 +245,7 @@ const getTransformedSlackData = async () => {
 };
 
 
-setTimeout(backup, 60 * 1000);
+// setTimeout(backup, 60 * 1000);
 
 window.con = window.console;
 
