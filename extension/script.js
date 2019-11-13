@@ -91,7 +91,7 @@ var backup = async () => {
 
 var getMessages = (real_name, options = {}) => {
     real_name = real_name.toLowerCase();
-    let backupData = getBackupData();
+    let backupData = options.data ? options.data : getBackupData();
     let memberId = Object.values(backupData.members).find(item => (item.real_name || '').toLowerCase().includes(real_name)).id;
     let channelId = Object.values(backupData.channels).find(item => (item.user || '').includes(memberId)).id;
 
@@ -112,19 +112,19 @@ var getMessages = (real_name, options = {}) => {
     return backupData.messages[channelId]
 };
 
-var getAllMessages = () => {
-    const {channels, members} = getBackupData();
+var getAllMessages = async () => {
+    const {channels, members, messages} = await getDatabaseData();
 
     const onlyUserChannelsList = Object.values(channels).filter(item => item.user);
     const membersList = Object.values(members);
 
     return onlyUserChannelsList.map(channel => {
         const name = ((membersList.find(member => member.id === channel.user)) || {}).real_name;
-        const messages = getMessages(name || '', {compact: true});
+        const msgs = getMessages(name || '', {compact: true, data:{channels, members, messages}});
 
         return {
             name,
-            messages
+            messages: msgs,
         }
     }).filter(item => item.messages).reduce((acc, {name, messages}) => {
         return {
