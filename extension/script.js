@@ -92,7 +92,8 @@ var backup = async () => {
 var getMessages = (real_name, options = {}) => {
     real_name = real_name.toLowerCase();
     let backupData = options.data ? options.data : getBackupData();
-    let memberId = Object.values(backupData.members).find(item => (item.real_name || '').toLowerCase().includes(real_name)).id;
+    let member = Object.values(backupData.members).find(item => (item.real_name || '').toLowerCase().includes(real_name));
+    let memberId = member.id;
     let channelId = Object.values(backupData.channels).find(item => (item.user || '').includes(memberId)).id;
 
     if (options.compact) {
@@ -116,7 +117,7 @@ var getMessages = (real_name, options = {}) => {
                 }-${leftPad(date.getHours(), 2)
                 }:${leftPad(date.getMinutes(), 2)
                 }:${leftPad(date.getSeconds(), 2)
-                }`]: {text, user}
+                }`]: {text, user: member.id === user ? 'He' : 'I'} // {text, user: member.id === user ? member.real_name : 'me'}
             }
         }, null)
     }
