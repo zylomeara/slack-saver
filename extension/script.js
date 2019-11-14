@@ -100,11 +100,23 @@ var getMessages = (real_name, options = {}) => {
             return undefined
         }
 
+        function leftPad(value, length) {
+            return ('0'.repeat(length) + value).slice(-length);
+        }
+
         return Object.entries(backupData.messages[channelId]).reduce((acc, [ts, obj]) => {
             const {text, user} = obj;
+            const timestamp = Number(ts.split('.')[0]) * 1000;
+            const date = new Date(timestamp);
             return {
                 ...acc,
-                [ts]: {text, user}
+                [`${date.getFullYear()
+                }.${leftPad(date.getMonth(), 2)
+                }.${leftPad(date.getDate(), 2)
+                }-${leftPad(date.getHours(), 2)
+                }:${leftPad(date.getMinutes(), 2)
+                }:${leftPad(date.getSeconds(), 2)
+                }`]: {text, user}
             }
         }, null)
     }
@@ -134,8 +146,8 @@ var getAllMessages = async () => {
     }, null)
 };
 
-var getMessagesFromChannel = (channelName) => {
-    const {messages, channels, members} = getBackupData();
+var getMessagesFromChannel = async (channelName) => {
+    const {messages, channels, members} = await getDatabaseData();
     const foundChannel = Object.values(channels)
         .filter(ch => ch.is_channel || ch.is_group || ch.is_general)
         .find(ch => ch.name.includes(channelName)) || {};
