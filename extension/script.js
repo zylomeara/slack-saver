@@ -240,13 +240,15 @@ var getTransformedSlackData = async () => {
                     .map(msg => {
                         const ts = Number((msg.ts || '').replace(/\./, ''));
                         if (Number.isNaN(ts)) {
-                            throw new Error('Catch NaN')
+                            console.error('Catch NaN', msg);
+                            return null;
                         }
                         return ({
                             ...msg,
                             _id: ts
                         });
                     })
+                  .filter(i => i)
             )
             .reduce((acc, next) => [
                 ...acc,
